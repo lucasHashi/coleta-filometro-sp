@@ -3,12 +3,15 @@ import numpy as np
 
 from selenium import webdriver
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 import os
 import re
 
 URL_BASE_FILOMETRO = 'https://deolhonafila.prefeitura.sp.gov.br/'
 
-MODO_DE_TESTES = False
+MODO_DE_TESTES = True
 
 
 def main():
@@ -18,6 +21,7 @@ def main():
 
 
 def coletar_filas_agora():
+    logging.info('Iniciando webdriver')
     if(not MODO_DE_TESTES):
         #GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google_chrome'
         #CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
@@ -38,14 +42,19 @@ def coletar_filas_agora():
         driver_filometro = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
     else:
         # Pra rodar em casa
-        driver_filometro = webdriver.Chrome('./chromedriver')
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+
+        driver_filometro = webdriver.Chrome('./chromedriver', chrome_options=chrome_options)
     
+    logging.info('Acessando pagina')
     driver_filometro.get(URL_BASE_FILOMETRO)
     driver_filometro.implicitly_wait(5)
 
 
     divs_categorias = driver_filometro.find_elements_by_css_selector('div#corpo div.container.crss')
 
+    logging.info('Carregando dados')
     dados_situacao_postos = []
     for div_categoria in divs_categorias:
         span_categoria_titulo = div_categoria.find_element_by_css_selector('span.crs').text
@@ -53,6 +62,16 @@ def coletar_filas_agora():
 
         divs_locais = div_categoria.find_elements_by_css_selector('div.collapse.msg')
 
+        if not divs_locais:
+            for div_categoria_aux in div_categoria.find_elements_by_css_selector('div'):
+                try:
+                    div_local_aux = div_categoria_aux.find_element_by_css_selector('div.container')
+
+                    divs_locais.append(div_local_aux)
+                except:
+                    pass
+
+        logging.info('  Categoria {}'.format(span_categoria_titulo))
         for div_local in divs_locais:
             titulo, modalidade = div_local.find_elements_by_css_selector('div h6')
             
@@ -64,7 +83,9 @@ def coletar_filas_agora():
             situacao = limpar_situacao(situacao.get_attribute('innerHTML'))
             data_atualizacao, horario_atualizacao = limpar_ultima_atualizacao(ultima_atualizacao.get_attribute('innerHTML'))
 
+            logging.info('    {}'.format(titulo))
             dados_situacao_postos.append({
+                'categoria': span_categoria_titulo,
                 'titulo': titulo,
                 'modalidade': modalidade,
                 'endereco': endereco,
@@ -141,6 +162,9 @@ def limpar_descricao(descricao):
 
             telefone_1 = telefones[0] if len(telefones) >= 1 else np.nan
             telefone_2 = telefones[1] if len(telefones) >= 2 else np.nan
+        else:
+            telefone_1 = np.nan
+            telefone_2 = np.nan
     else:
         cep = np.nan
         telefone_1 = np.nan
