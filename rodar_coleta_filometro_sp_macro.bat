@@ -1,0 +1,1 @@
+C:\Users\lucas.belmonte\Anaconda3\python.exe "C:\Users\lucas.belmonte\Documents\GitHub\coleta-filometro-sp\main.py"

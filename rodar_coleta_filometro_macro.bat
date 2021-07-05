@@ -1,1 +1,0 @@
-C:\Users\lucashashi\anaconda3\envs\web-scraping\python.exe "E:\Lucas\Programacao\coleta-filometro-sp\main.py"
