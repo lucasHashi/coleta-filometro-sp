@@ -2,6 +2,7 @@ import pandas as pd
 import os
 
 CAMINHO_PROJETO = 'E:\\Lucas\\Programacao\\coleta-filometro-sp'
+CAMINHO_PROJETO = 'C:\\Users\\lucas.belmonte\\Documents\\GitHub\\coleta-filometro-sp'
 
 
 def main():

@@ -17,6 +17,7 @@ URL_BASE_FILOMETRO = 'https://deolhonafila.prefeitura.sp.gov.br/'
 MODO_DE_TESTES = True
 
 CAMINHO_PROJETO = 'E:\\Lucas\\Programacao\\coleta-filometro-sp'
+CAMINHO_PROJETO = 'C:\\Users\\lucas.belmonte\\Documents\\GitHub\\coleta-filometro-sp'
 
 
 def main():
@@ -48,7 +49,7 @@ def coletar_filas_agora():
     else:
         # Pra rodar em casa
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--headless")
+        #chrome_options.add_argument("--headless")
 
         driver_filometro = webdriver.Chrome(os.path.join(CAMINHO_PROJETO, 'chromedriver.exe'), chrome_options=chrome_options)
         #driver_filometro = webdriver.Firefox()
