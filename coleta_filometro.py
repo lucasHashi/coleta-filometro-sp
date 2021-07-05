@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from selenium import webdriver
 
 import logging
@@ -12,6 +15,8 @@ import re
 URL_BASE_FILOMETRO = 'https://deolhonafila.prefeitura.sp.gov.br/'
 
 MODO_DE_TESTES = True
+
+CAMINHO_PROJETO = 'E:\\Lucas\\Programacao\\coleta-filometro-sp'
 
 
 def main():
@@ -45,12 +50,14 @@ def coletar_filas_agora():
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
 
-        driver_filometro = webdriver.Chrome('./chromedriver', chrome_options=chrome_options)
+        driver_filometro = webdriver.Chrome(os.path.join(CAMINHO_PROJETO, 'chromedriver.exe'), chrome_options=chrome_options)
+        #driver_filometro = webdriver.Firefox()
     
     logging.info('Acessando pagina')
     driver_filometro.get(URL_BASE_FILOMETRO)
     driver_filometro.implicitly_wait(5)
 
+    _ = WebDriverWait(driver_filometro, 10, 2).until(EC.presence_of_element_located((By.ID, 'corpo')))
 
     divs_categorias = driver_filometro.find_elements_by_css_selector('div#corpo div.container.crss')
 
@@ -183,7 +190,8 @@ def limpar_situacao(situacao):
         'fila pequena': 'fila_pequena',
         'sem fila': 'sem_fila',
         'aguardando abastecimento': 'aguardando_abastecimento',
-        '': 'sem_informacao'
+        '': 'sem_informacao',
+        'null': 'sem_informacao'
     }[situacao]
 
     return situacao
@@ -192,12 +200,17 @@ def limpar_ultima_atualizacao(ultima_atualizacao):
     ultima_atualizacao = ultima_atualizacao.strip().lower()
     ultima_atualizacao = ultima_atualizacao.replace('última informação:', '').strip()
 
-    data, horario = ultima_atualizacao.split()
-
-    return data, horario
+    try:
+        data, horario = ultima_atualizacao.split()
+        return data, horario
+    except:
+        return np.nan, np.nan
 
 def aproximar_horario(horario_texto):
-    hora, minuto = horario_texto.split(':')
+    try:
+        hora, minuto = horario_texto.split(':')
+    except:
+        return np.nan, np.nan
 
     hora = int(hora)
     minuto = int(minuto)
