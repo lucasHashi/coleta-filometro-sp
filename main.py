@@ -1,18 +1,25 @@
 import pandas as pd
-from sqlalchemy import create_engine
+import os
+from datetime import datetime
+from time import sleep
 
 import coleta_filometro
+
+CAMINHO_PROJETO = 'E:\\Lucas\\Programacao\\coleta-filometro-sp'
 
 
 def main():
     df_situacao_postos = coleta_filometro.coletar_filas_agora()
 
-    engine = create_engine('sqlite:///./db_filometro.db')
-    df_situacao_postos.to_sql('situacao_postos_sp', engine, if_exists='append')
+    arquivo_pickle = '{}.pickle'.format(datetime.now().strftime('%Y_%m_%d_%H_00'))
 
-
-
+    df_situacao_postos.to_pickle(os.path.join(CAMINHO_PROJETO, 'dados_pickle', arquivo_pickle))
 
 
 if __name__ == '__main__':
-    main()
+	try:
+		main()
+	except:
+		while True:
+			sleep(3)
+			print('Erro')
